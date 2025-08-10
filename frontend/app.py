@@ -1,16 +1,7 @@
-from flask import Flask, jsonify, request, render_template
-import json
-from dotenv import load_dotenv
-import pymongo
-import os
+from flask import Flask, render_template, request
+import requests
 
-load_dotenv()
-
-MONGO_URI = os.getenv('MONGO_URI')
-
-client = pymongo.MongoClient(MONGO_URI)
-db = client.test
-collection = db['flask-tutorial']
+BACKEND_URL = 'http://localhost:9000'
 
 app = Flask(__name__)
 
@@ -22,4 +13,14 @@ def home():
 def todo():
     return render_template('todo.html')
 
-app.run(debug=True)
+@app.route('/api/submittodoitem', methods=['POST'])
+def submittodoitem():
+    item_name = request.form.get('itemName')
+    item_description = request.form.get('itemDescription')
+    requests.post(f"{BACKEND_URL}/api/submittodoitem", data={
+        "itemName": item_name,
+        "itemDescription": item_description
+    })
+    return 'Data submitted successfully!'
+
+app.run(host='0.0.0.0', port=8001, debug=True)
